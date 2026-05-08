@@ -1,5 +1,6 @@
 import { auth } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { PlacesService } from "./places-service.js";
 
 // Estado Global
 const S = {
@@ -11,11 +12,10 @@ const S = {
     categoria: 'all',
     marcadores: [],
     userMarker: null,
-    lugares: [] // Lugares carregados do data.js
+    lugares: []
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Verificar Auth
     onAuthStateChanged(auth, user => {
         if (user) {
             S.user = user;
@@ -32,6 +32,7 @@ function initApp() {
 }
 
 function iniciarMapa() {
+    if (S.mapa) return;
     S.mapa = L.map('map', { zoomControl: false }).setView([-15.7801, -47.9292], 4);
     L.control.zoom({ position: 'bottomright' }).addTo(S.mapa);
 
@@ -49,7 +50,7 @@ function pedirLocalizacao() {
     }
 
     navigator.geolocation.getCurrentPosition(
-        pos => {
+        async pos => {
             S.lat = pos.coords.latitude;
             S.lon = pos.coords.longitude;
             if (status) status.style.display = 'none';
@@ -57,16 +58,15 @@ function pedirLocalizacao() {
             atualizarMarcadorUsuario();
             S.mapa.setView([S.lat, S.lon], 14);
             
-            // Carregar lugares iniciais
-            buscarLugares();
+            await buscarLugares();
         },
-        err => {
+        async err => {
             console.warn('Erro geo:', err.message);
             if (status) status.innerHTML = '⚠️ Localização negada';
-            // Fallback para SP se negado
+            // Fallback para SP
             S.lat = -23.5505;
             S.lon = -46.6333;
-            buscarLugares();
+            await buscarLugares();
         },
         { enableHighAccuracy: true }
     );
@@ -85,21 +85,28 @@ function atualizarMarcadorUsuario() {
     }
 }
 
-function buscarLugares() {
-    // Simulação de busca baseada no raio e localização
-    // No futuro, aqui seria uma chamada para o seu backend/Firestore
+async function buscarLugares() {
+    mostrarLoading(true);
     
-    // Para demonstração, usamos os dados do data.js e filtramos pelo raio simulado
-    // (Como os dados são estáticos, vamos apenas "espalhar" eles perto do usuário para o efeito visual)
+    // Busca lugares reais via API
+    S.lugares = await PlacesService.fetchNearbyPlaces(S.lat, S.lon, S.radius, S.categoria);
     
-    S.lugares = PLACES.map(p => {
-        // Se o lugar já tem lat/lng fixa, mantemos. Se não, geramos perto do usuário.
-        // Aqui vamos apenas usar os dados do data.js
-        return p;
-    });
-
     renderizarCards();
     renderizarMarcadores();
+    mostrarLoading(false);
+}
+
+function mostrarLoading(on) {
+    const lista = document.getElementById('lista-lugares');
+    if (!lista) return;
+    
+    if (on) {
+        lista.innerHTML = `
+            <div class="loading-state">
+                <div class="spinner-small"></div>
+                <p>Buscando lugares reais em um raio de ${S.radius/1000}km...</p>
+            </div>`;
+    }
 }
 
 function renderizarCards() {
@@ -109,9 +116,8 @@ function renderizarCards() {
     const busca = document.getElementById('busca-input')?.value.toLowerCase() || '';
     
     const filtrados = S.lugares.filter(p => {
-        const matchCat = S.categoria === 'all' || p.category === S.categoria;
         const matchBusca = p.name.toLowerCase().includes(busca) || p.address.toLowerCase().includes(busca);
-        return matchCat && matchBusca;
+        return matchBusca;
     });
 
     if (filtrados.length === 0) {
@@ -133,7 +139,6 @@ function renderizarCards() {
         `;
         card.onclick = () => {
             S.mapa.setView([p.lat, p.lng], 16);
-            // Abrir popup do marcador correspondente
             const m = S.marcadores.find(m => m._id === p.id);
             if (m) m.openPopup();
         };
@@ -142,13 +147,10 @@ function renderizarCards() {
 }
 
 function renderizarMarcadores() {
-    // Limpar anteriores
     S.marcadores.forEach(m => S.mapa.removeLayer(m));
     S.marcadores = [];
 
-    const filtrados = S.lugares.filter(p => S.categoria === 'all' || p.category === S.categoria);
-
-    filtrados.forEach(p => {
+    S.lugares.forEach(p => {
         const marker = L.marker([p.lat, p.lng]).addTo(S.mapa);
         marker._id = p.id;
         marker.bindPopup(`
@@ -163,40 +165,33 @@ function renderizarMarcadores() {
 }
 
 function iniciarEventos() {
-    // Busca
     document.getElementById('busca-input')?.addEventListener('input', renderizarCards);
 
-    // Categorias
     document.querySelectorAll('.cat-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', async () => {
             document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('ativo'));
             tab.classList.add('ativo');
             S.categoria = tab.dataset.cat;
-            renderizarCards();
-            renderizarMarcadores();
+            await buscarLugares();
         });
     });
 
-    // Raio
-    document.getElementById('select-raio')?.addEventListener('change', (e) => {
+    document.getElementById('select-raio')?.addEventListener('change', async (e) => {
         S.radius = parseInt(e.target.value);
-        buscarLugares();
+        await buscarLugares();
     });
 
-    // Atualizar
     document.getElementById('btn-atualizar')?.addEventListener('click', buscarLugares);
 
-    // Minha Localização
     document.getElementById('btn-my-location')?.addEventListener('click', () => {
         if (S.lat) S.mapa.setView([S.lat, S.lon], 15);
     });
 
-    // Modal Logout
     const modal = document.getElementById('modal-logout');
     document.getElementById('btn-logout-trigger')?.addEventListener('click', () => modal.classList.add('visible'));
     document.getElementById('modal-cancel')?.addEventListener('click', () => modal.classList.remove('visible'));
     document.getElementById('modal-confirm')?.addEventListener('click', () => {
-        window.logout(); // Função global no auth.js
+        window.logout();
     });
 }
 

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../css/map.css">
     <link rel="icon" href="../img/logo-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
@@ -16,18 +17,22 @@
         <div class="container header-content">
             <img src="../img/logo-trotter.svg" alt="TROTTER" class="logo">
             <nav class="desktop-nav">
-                <a href="home.html" class="active">Início</a>
+                <a href="home.html">Início</a>
                 <a href="explore.html">Explorar</a>
-                <a href="map.html">Mapa</a>
+                <a href="map.html" class="active">Mapa</a>
             </nav>
             <div class="user-menu">
-                <span id="user-name">Olá, Viajante</span>
-                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                <div class="user-chip">
+                    <div id="user-avatar" class="avatar"></div>
+                    <span id="user-name">Carregando...</span>
+                </div>
+                <button id="btn-logout-trigger" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </div>
     </header>
 
     <main class="app-layout">
+        <!-- Barra Lateral -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="search-box">
@@ -60,6 +65,7 @@
             </div>
 
             <div id="lista-lugares" class="places-list">
+                <!-- Cards de lugares via JS -->
                 <div class="loading-state">
                     <div class="spinner-small"></div>
                     <p>Buscando lugares próximos...</p>
@@ -67,6 +73,7 @@
             </div>
         </aside>
 
+        <!-- Área do Mapa -->
         <section class="map-view">
             <div id="map"></div>
             
@@ -81,6 +88,7 @@
         </section>
     </main>
 
+    <!-- Modal Logout -->
     <div id="modal-logout" class="modal">
         <div class="modal-content">
             <h3>Sair da conta?</h3>
@@ -98,6 +106,7 @@
         <a href="map.html" class="active"><i class="fas fa-map-marked-alt"></i><span>Mapa</span></a>
     </nav>
 
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="../js/auth.js"></script>
     <script src="../js/data.js"></script>
