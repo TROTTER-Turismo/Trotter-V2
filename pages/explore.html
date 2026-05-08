@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorar | TROTTER</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/explore.css">
+    <link rel="icon" href="../img/logo-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-content">
+            <img src="../img/logo-trotter.svg" alt="TROTTER" class="logo">
+            <nav class="desktop-nav">
+                <a href="home.html">Início</a>
+                <a href="explore.html" class="active">Explorar</a>
+                <a href="map.html">Mapa</a>
+            </nav>
+            <div class="user-menu">
+                <span id="user-name">Olá, Viajante</span>
+                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="explore-header">
+            <h1>Descubra novos <span>destinos</span></h1>
+            <div class="filters">
+                <button class="filter-btn" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="comer"><i class="fas fa-utensils"></i> Comer</button>
+                <button class="filter-btn" data-filter="visitar"><i class="fas fa-camera"></i> Visitar</button>
+                <button class="filter-btn" data-filter="dormir"><i class="fas fa-bed"></i> Dormir</button>
+            </div>
+        </section>
+
+        <div class="places-grid" id="explore-places">
+            <!-- Cards via JS -->
+        </div>
+    </main>
+
+    <nav class="mobile-nav">
+        <a href="home.html"><i class="fas fa-home"></i><span>Início</span></a>
+        <a href="explore.html" class="active"><i class="fas fa-search"></i><span>Explorar</span></a>
+        <a href="map.html"><i class="fas fa-map-marked-alt"></i><span>Mapa</span></a>
+    </nav>
+
+    <script type="module" src="../js/auth.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

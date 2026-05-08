@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | TROTTER</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="icon" href="img/logo-icon.svg" type="image/svg+xml">
+</head>
+<body>
+    <div id="preloader">
+        <img src="img/logo-trotter.svg" alt="TROTTER" width="150">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-visual">
+            <div class="auth-visual-content">
+                <img src="img/logo-icon.svg" alt="T" class="floating-logo">
+                <h1>Descubra o que está <br><span>ao seu redor</span></h1>
+                <p>Restaurantes, hospedagens e atrações perto de você, em tempo real.</p>
+            </div>
+        </div>
+        
+        <div class="auth-form-container">
+            <div class="auth-form-box">
+                <img src="img/logo-trotter.svg" alt="TROTTER" class="form-logo">
+                <span class="tag">Bem-vindo de volta</span>
+                <h2>Entrar na conta</h2>
+                <p class="subtitle">Acesse para ver o que há perto de você.</p>
+
+                <button class="btn-google" id="btn-google">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+                    Continuar com Google
+                </button>
+
+                <div class="divider"><span>ou</span></div>
+
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" placeholder="Sua senha" required>
+                    </div>
+                    <button type="submit" class="btn-submit">ENTRAR</button>
+                    <p id="auth-message" class="message"></p>
+                </form>
+
+                <p class="switch-auth">
+                    Não tem uma conta? <a href="pages/register.html">Criar conta grátis</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 800);
+        });
+    </script>
+</body>
+</html>

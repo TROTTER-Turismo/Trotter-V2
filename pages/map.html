@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa | TROTTER</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/map.css">
+    <link rel="icon" href="../img/logo-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-content">
+            <img src="../img/logo-trotter.svg" alt="TROTTER" class="logo">
+            <nav class="desktop-nav">
+                <a href="home.html">Início</a>
+                <a href="explore.html">Explorar</a>
+                <a href="map.html" class="active">Mapa</a>
+            </nav>
+            <div class="user-menu">
+                <span id="user-name">Olá, Viajante</span>
+                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="map-container">
+        <div id="map"></div>
+        
+        <div class="map-overlay">
+            <div class="location-status" id="location-status">
+                <i class="fas fa-location-arrow"></i> Obtendo sua localização...
+            </div>
+            
+            <div class="map-controls">
+                <button id="btn-my-location" title="Minha Localização"><i class="fas fa-crosshairs"></i></button>
+            </div>
+        </div>
+
+        <div class="place-detail-card" id="place-detail">
+            <button class="close-detail"><i class="fas fa-times"></i></button>
+            <div class="detail-content">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+    </main>
+
+    <nav class="mobile-nav">
+        <a href="home.html"><i class="fas fa-home"></i><span>Início</span></a>
+        <a href="explore.html"><i class="fas fa-search"></i><span>Explorar</span></a>
+        <a href="map.html" class="active"><i class="fas fa-map-marked-alt"></i><span>Mapa</span></a>
+    </nav>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="../js/auth.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/map.js"></script>
+</body>
+</html>
