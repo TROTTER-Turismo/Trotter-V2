@@ -16,7 +16,6 @@ import { auth, db } from "./firebase-config.js";
 
 const CURRENT_USER_KEY = 'trotter_current_user';
 
-// Helper para mensagens
 function showMessage(text, type) {
     const msgEl = document.getElementById('auth-message');
     if (msgEl) {
@@ -25,26 +24,21 @@ function showMessage(text, type) {
     }
 }
 
-// Observador de estado de autenticação
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Usuário logado
         const userData = {
             uid: user.uid,
             name: user.displayName || 'Viajante',
             email: user.email
         };
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userData));
-        
-        // Se estiver na página de login ou registro, vai para home
+
         if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('register.html') || window.location.pathname === '/') {
             const isRoot = !window.location.pathname.includes('pages/');
             window.location.href = isRoot ? 'pages/home.html' : 'home.html';
         }
     } else {
-        // Usuário deslogado
         localStorage.removeItem(CURRENT_USER_KEY);
-        // Se não estiver em login/registro, volta para login
         if (!window.location.pathname.endsWith('index.html') && !window.location.pathname.endsWith('register.html') && window.location.pathname !== '/') {
             const isRoot = !window.location.pathname.includes('pages/');
             window.location.href = isRoot ? 'index.html' : '../index.html';
@@ -52,7 +46,6 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// Login com E-mail e Senha
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -70,7 +63,6 @@ if (loginForm) {
     });
 }
 
-// Registro de Novo Usuário
 const registerForm = document.getElementById('register-form');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
@@ -89,10 +81,8 @@ if (registerForm) {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Atualizar perfil com nome
             await updateProfile(user, { displayName: name });
 
-            // Salvar no Firestore
             await setDoc(doc(db, "usuarios", user.uid), {
                 nome: name,
                 email: email,
@@ -107,7 +97,6 @@ if (registerForm) {
     });
 }
 
-// Login com Google
 const googleBtn = document.getElementById('btn-google');
 if (googleBtn) {
     googleBtn.addEventListener('click', async () => {
@@ -115,8 +104,6 @@ if (googleBtn) {
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
-            
-            // Salvar/Atualizar no Firestore
             await setDoc(doc(db, "usuarios", user.uid), {
                 nome: user.displayName,
                 email: user.email,
@@ -130,7 +117,6 @@ if (googleBtn) {
     });
 }
 
-// Função de Logout Global
 window.logout = async function() {
     try {
         await signOut(auth);

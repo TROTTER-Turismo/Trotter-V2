@@ -8,6 +8,7 @@
     .app-layout {
         flex-direction: column;
         height: calc(100vh - 130px);
+        position: relative;
     }
 }
 
@@ -18,15 +19,40 @@
     display: flex;
     flex-direction: column;
     border-right: 1px solid #eee;
-    z-index: 10;
+    z-index: 1001;
+    transition: transform 0.3s ease;
 }
 
 @media (max-width: 768px) {
     .sidebar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
         width: 100%;
-        height: 40%;
+        height: 60%;
         border-right: none;
-        border-bottom: 1px solid #eee;
+        border-radius: 25px 25px 0 0;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        transform: translateY(calc(100% - 60px)); /* Deixa só o topo visível */
+    }
+
+    .sidebar.expanded {
+        transform: translateY(0);
+    }
+
+    .sidebar-header {
+        padding: 10px 20px 20px;
+    }
+
+    /* Alça para puxar no mobile */
+    .sidebar::before {
+        content: "";
+        width: 40px;
+        height: 5px;
+        background: #ddd;
+        border-radius: 10px;
+        margin: 10px auto 5px;
+        display: block;
     }
 }
 
@@ -331,4 +357,28 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 15px;
+}
+
+.btn-search-area {
+    background: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 15px rgba(0, 157, 113, 0.3);
+    display: none; /* Aparece via JS ao mover o mapa */
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+    border: 2px solid white;
+}
+
+.btn-search-area i {
+    font-size: 0.8rem;
+}
+
+.btn-search-area:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
 }

@@ -2,13 +2,12 @@ import { auth } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { PlacesService } from "./places-service.js";
 
-// Estado Global
 const S = {
     mapa: null,
     user: null,
     lat: null,
     lon: null,
-    radius: 5000, // 5km padrão
+    radius: 5000, 
     categoria: 'all',
     marcadores: [],
     userMarker: null,
@@ -63,7 +62,6 @@ function pedirLocalizacao() {
         async err => {
             console.warn('Erro geo:', err.message);
             if (status) status.innerHTML = '⚠️ Localização negada';
-            // Fallback para SP
             S.lat = -23.5505;
             S.lon = -46.6333;
             await buscarLugares();
@@ -87,8 +85,7 @@ function atualizarMarcadorUsuario() {
 
 async function buscarLugares() {
     mostrarLoading(true);
-    
-    // Busca lugares reais via API
+
     S.lugares = await PlacesService.fetchNearbyPlaces(S.lat, S.lon, S.radius, S.categoria);
     
     renderizarCards();
@@ -165,10 +162,18 @@ function renderizarMarcadores() {
 }
 
 function iniciarEventos() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar?.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('expanded');
+        }
+    });
+
     document.getElementById('busca-input')?.addEventListener('input', renderizarCards);
 
     document.querySelectorAll('.cat-tab').forEach(tab => {
-        tab.addEventListener('click', async () => {
+        tab.addEventListener('click', async (e) => {
+            e.stopPropagation(); // Evita fechar painel no mobile
             document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('ativo'));
             tab.classList.add('ativo');
             S.categoria = tab.dataset.cat;
@@ -182,6 +187,20 @@ function iniciarEventos() {
     });
 
     document.getElementById('btn-atualizar')?.addEventListener('click', buscarLugares);
+
+    const btnSearchHere = document.getElementById('btn-search-here');
+    S.mapa.on('moveend', () => {
+        const center = S.mapa.getCenter();
+        btnSearchHere.style.display = 'flex';
+    });
+
+    btnSearchHere?.addEventListener('click', async () => {
+        const center = S.mapa.getCenter();
+        S.lat = center.lat;
+        S.lon = center.lng;
+        btnSearchHere.style.display = 'none';
+        await buscarLugares();
+    });
 
     document.getElementById('btn-my-location')?.addEventListener('click', () => {
         if (S.lat) S.mapa.setView([S.lat, S.lon], 15);
