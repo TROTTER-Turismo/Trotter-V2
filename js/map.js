@@ -16,12 +16,16 @@ const S = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, user => {
-        const userNameEl = document.getElementById('user-name');
-        if (userNameEl && currentUser) {
-            userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
-        }
-    });
+    const currentUser = JSON.parse(localStorage.getItem('trotter_current_user'));
+    if (!currentUser && !window.location.pathname.includes('index.html') && !window.location.pathname.includes('register.html')) {
+        window.location.href = '../index.html';
+        return;
+    }
+
+    const userNameEl = document.getElementById('user-name');
+    if (userNameEl && currentUser) {
+        userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
+    }
 });
 
 function initApp() {
