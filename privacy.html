@@ -10,39 +10,95 @@
             color: white;
             font-family: Arial, sans-serif;
             margin: 0;
+            padding: 0;
         }
 
         .container {
             max-width: 800px;
             margin: auto;
-            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         a {
-            color: #38bdf8;
+            color: #0f172a;
             text-decoration: none;
+            transition: 0.2s;
+            border: solid white 1px;
+            border-radius: 20px 0;
+            padding: 10px 70px;
+            margin-top: 20px;
+            background-color: white;
+            font-weight: bold;
+        }
+
+        a:hover {
+            color: #ffff;
+            background-color: #0f172a;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 157, 113, 0.1);
+            border-left-color: #009D71;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-top: 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 800);
+        });
+    </script>
 </head>
 
 <body>
-    <center>
-        <div class="container">
-            <h1>Política de Privacidade</h1>
-
-            <p>
-                A Trotter Turismo respeita sua privacidade e protege seus dados.
-            </p>
-
-            <p>
-                Utilizamos autenticação segura via Firebase Authentication e Google Login.
-            </p>
-
-            <p>
-                Nenhuma senha do Google é armazenada em nossos servidores.
-            </p>
-        </div>
-    </center>
+    <div id="preloader">
+        <img src="img/logo-trotter.svg" alt="TROTTER" width="150">
+        <div class="spinner"></div>
+    </div>
+    <div class="container">
+        <h1>Política de Privacidade</h1>
+        <p>A Trotter Turismo respeita sua privacidade e protege seus dados.</p>
+        <p>Utilizamos autenticação segura via Firebase Authentication e Google Login.</p>
+        <p>Nenhuma senha do Google é armazenada em nossos servidores.</p>
+        <a href="index.html">Voltar ao Login</a>
+    </div>
 </body>
 
 </html>
