@@ -17,10 +17,9 @@ const S = {
 
 document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, user => {
-        if (user) {
-            S.user = user;
-            preencherNavbar(user);
-            initApp();
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl && currentUser) {
+            userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
         }
     });
 });
