@@ -1,6 +1,14 @@
+/**
+ * Serviço para buscar lugares reais usando a Overpass API (OpenStreetMap)
+ * e fotos reais via Foursquare API (Opcional)
+ */
 export const PlacesService = {
-    FOURSQUARE_API_KEY: 'NXS0K1J0CAENODMNPBMOHPRN01AQF3KMNY0PQK4NLFZMQLHJ', 
+    // Chave do Foursquare (Deve começar com fsq3...)
+    FOURSQUARE_API_KEY: 'SQNPWLHZQQ04OQLOXJJTM1NQSCQFETG0Y22T5VKTYGYKBVSO', 
 
+    /**
+     * Busca lugares próximos com base na latitude, longitude e raio
+     */
     async fetchNearbyPlaces(lat, lon, radius, category = 'all') {
         const categories = {
             'comer': '["amenity"~"restaurant|cafe|fast_food|bar|pub|ice_cream|food_court|bakery"]',
@@ -9,29 +17,14 @@ export const PlacesService = {
             'all': '["amenity"~"restaurant|cafe|fast_food|bar|pub|ice_cream|food_court|bakery"] ["tourism"~"hotel|hostel|guest_house|motel|apartment|camp_site|chalet|museum|viewpoint|attraction|artwork|gallery|zoo|theme_park|picnic_site|park"]'
         };
 
-        let query = '';
-        if (category === 'all') {
-            query = `
-                [out:json][timeout:30];
-                (
-                  node["amenity"~"restaurant|cafe|fast_food|bar|pub|ice_cream|food_court|bakery"](around:${radius},${lat},${lon});
-                  way["amenity"~"restaurant|cafe|fast_food|bar|pub|ice_cream|food_court|bakery"](around:${radius},${lat},${lon});
-                  node["tourism"~"hotel|hostel|guest_house|motel|apartment|camp_site|chalet|museum|viewpoint|attraction|artwork|gallery|zoo|theme_park|picnic_site|park"](around:${radius},${lat},${lon});
-                  way["tourism"~"hotel|hostel|guest_house|motel|apartment|camp_site|chalet|museum|viewpoint|attraction|artwork|gallery|zoo|theme_park|picnic_site|park"](around:${radius},${lat},${lon});
-                );
-                out center;
-            `;
-        } else {
-            const filter = categories[category];
-            query = `
-                [out:json][timeout:30];
-                (
-                  node${filter}(around:${radius},${lat},${lon});
-                  way${filter}(around:${radius},${lat},${lon});
-                );
-                out center;
-            `;
-        }
+        let query = `
+            [out:json][timeout:30];
+            (
+              node${category === 'all' ? categories['all'] : categories[category]}(around:${radius},${lat},${lon});
+              way${category === 'all' ? categories['all'] : categories[category]}(around:${radius},${lat},${lon});
+            );
+            out center;
+        `;
 
         try {
             const response = await fetch('https://overpass-api.de/api/interpreter', {
@@ -44,8 +37,8 @@ export const PlacesService = {
             const data = await response.json();
             const places = this.formatOverpassData(data.elements);
             
-            // Tentar buscar fotos reais se houver chave do Foursquare
-            if (this.FOURSQUARE_API_KEY && places.length > 0) {
+            // Só tenta enriquecer se a chave parecer válida (começa com fsq3)
+            if (this.FOURSQUARE_API_KEY && this.FOURSQUARE_API_KEY.startsWith('fsq3')) {
                 return await this.enrichWithFoursquarePhotos(places);
             }
 
@@ -94,31 +87,34 @@ export const PlacesService = {
     },
 
     async enrichWithFoursquarePhotos(places) {
-        const enriched = await Promise.all(places.slice(0, 10).map(async (place) => {
+        const enriched = await Promise.all(places.slice(0, 8).map(async (place) => {
             try {
-                const searchUrl = `https://api.foursquare.com/v3/places/search?query=${encodeURIComponent(place.name)}&ll=${place.lat},${place.lng}&radius=100&limit=1`;
+                const searchUrl = `https://api.foursquare.com/v3/places/search?query=${encodeURIComponent(place.name)}&ll=${place.lat},${place.lng}&radius=150&limit=1`;
                 const res = await fetch(searchUrl, {
                     headers: { 'Authorization': this.FOURSQUARE_API_KEY }
                 });
-                const data = await res.json();
                 
+                if (res.status === 401) {
+                    console.warn('Chave do Foursquare inválida ou expirada.');
+                    return place;
+                }
+
+                const data = await res.json();
                 if (data.results && data.results.length > 0) {
                     const fsqId = data.results[0].fsq_id;
                     const photoRes = await fetch(`https://api.foursquare.com/v3/places/${fsqId}/photos?limit=1`, {
                         headers: { 'Authorization': this.FOURSQUARE_API_KEY }
                     });
                     const photoData = await photoRes.json();
-                    
                     if (photoData.length > 0) {
                         place.image = `${photoData[0].prefix}500x300${photoData[0].suffix}`;
                     }
                 }
             } catch (e) {
-                console.warn('Erro ao buscar foto real:', e);
+                // Silencioso para não poluir o console do usuário
             }
             return place;
         }));
-        
-        return [...enriched, ...places.slice(10)];
+        return [...enriched, ...places.slice(8)];
     }
 };

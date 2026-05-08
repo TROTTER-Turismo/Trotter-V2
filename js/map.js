@@ -2,12 +2,13 @@ import { auth } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { PlacesService } from "./places-service.js";
 
+// Estado Global
 const S = {
     mapa: null,
     user: null,
     lat: null,
     lon: null,
-    radius: 5000, 
+    radius: 5000, // 5km padrão
     categoria: 'all',
     marcadores: [],
     userMarker: null,
@@ -62,6 +63,7 @@ function pedirLocalizacao() {
         async err => {
             console.warn('Erro geo:', err.message);
             if (status) status.innerHTML = '⚠️ Localização negada';
+            // Fallback para SP
             S.lat = -23.5505;
             S.lon = -46.6333;
             await buscarLugares();
@@ -85,7 +87,8 @@ function atualizarMarcadorUsuario() {
 
 async function buscarLugares() {
     mostrarLoading(true);
-
+    
+    // Busca lugares reais via API
     S.lugares = await PlacesService.fetchNearbyPlaces(S.lat, S.lon, S.radius, S.categoria);
     
     renderizarCards();
@@ -162,6 +165,7 @@ function renderizarMarcadores() {
 }
 
 function iniciarEventos() {
+    // Painel Mobile
     const sidebar = document.querySelector('.sidebar');
     sidebar?.addEventListener('click', (e) => {
         if (window.innerWidth <= 768) {
@@ -169,8 +173,10 @@ function iniciarEventos() {
         }
     });
 
+    // Busca por texto
     document.getElementById('busca-input')?.addEventListener('input', renderizarCards);
 
+    // Categorias
     document.querySelectorAll('.cat-tab').forEach(tab => {
         tab.addEventListener('click', async (e) => {
             e.stopPropagation(); // Evita fechar painel no mobile
@@ -181,16 +187,20 @@ function iniciarEventos() {
         });
     });
 
+    // Raio
     document.getElementById('select-raio')?.addEventListener('change', async (e) => {
         S.radius = parseInt(e.target.value);
         await buscarLugares();
     });
 
+    // Atualizar
     document.getElementById('btn-atualizar')?.addEventListener('click', buscarLugares);
 
+    // Buscar nesta área (ao mover o mapa)
     const btnSearchHere = document.getElementById('btn-search-here');
     S.mapa.on('moveend', () => {
         const center = S.mapa.getCenter();
+        // Só mostra se moveu consideravelmente
         btnSearchHere.style.display = 'flex';
     });
 
@@ -202,6 +212,7 @@ function iniciarEventos() {
         await buscarLugares();
     });
 
+    // Minha Localização
     document.getElementById('btn-my-location')?.addEventListener('click', () => {
         if (S.lat) S.mapa.setView([S.lat, S.lon], 15);
     });
@@ -212,19 +223,4 @@ function iniciarEventos() {
     document.getElementById('modal-confirm')?.addEventListener('click', () => {
         window.logout();
     });
-}
-
-function preencherNavbar(user) {
-    const nome = user.displayName || user.email.split('@')[0];
-    const el = document.getElementById('user-name');
-    if (el) el.textContent = nome;
-    
-    const av = document.getElementById('user-avatar');
-    if (av) {
-        if (user.photoURL) {
-            av.innerHTML = `<img src="${user.photoURL}" alt="${nome}">`;
-        } else {
-            av.textContent = nome.charAt(0).toUpperCase();
-        }
-    }
 }
