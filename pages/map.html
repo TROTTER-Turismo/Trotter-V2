@@ -22,32 +22,83 @@
                 <a href="map.html" class="active">Mapa</a>
             </nav>
             <div class="user-menu">
-                <span id="user-name">Olá, Viajante</span>
-                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                <div class="user-chip">
+                    <div id="user-avatar" class="avatar"></div>
+                    <span id="user-name">Carregando...</span>
+                </div>
+                <button id="btn-logout-trigger" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </div>
     </header>
 
-    <main class="map-container">
-        <div id="map"></div>
-        
-        <div class="map-overlay">
-            <div class="location-status" id="location-status">
-                <i class="fas fa-location-arrow"></i> Obtendo sua localização...
-            </div>
-            
-            <div class="map-controls">
-                <button id="btn-my-location" title="Minha Localização"><i class="fas fa-crosshairs"></i></button>
-            </div>
-        </div>
+    <main class="app-layout">
+        <!-- Barra Lateral -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="busca-input" placeholder="Buscar lugares...">
+                </div>
+                
+                <div class="filter-controls">
+                    <div class="raio-control">
+                        <label for="select-raio">Raio:</label>
+                        <select id="select-raio">
+                            <option value="1000">1 km</option>
+                            <option value="3000">3 km</option>
+                            <option value="5000" selected>5 km</option>
+                            <option value="10000">10 km</option>
+                            <option value="20000">20 km</option>
+                        </select>
+                    </div>
+                    <button id="btn-atualizar" class="btn-refresh" title="Atualizar busca">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
 
-        <div class="place-detail-card" id="place-detail">
-            <button class="close-detail"><i class="fas fa-times"></i></button>
-            <div class="detail-content">
-                <!-- Preenchido via JS -->
+                <div class="category-tabs">
+                    <button class="cat-tab ativo" data-cat="all">Todos</button>
+                    <button class="cat-tab" data-cat="comer"><i class="fas fa-utensils"></i></button>
+                    <button class="cat-tab" data-cat="visitar"><i class="fas fa-camera"></i></button>
+                    <button class="cat-tab" data-cat="dormir"><i class="fas fa-bed"></i></button>
+                </div>
+            </div>
+
+            <div id="lista-lugares" class="places-list">
+                <!-- Cards de lugares via JS -->
+                <div class="loading-state">
+                    <div class="spinner-small"></div>
+                    <p>Buscando lugares próximos...</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área do Mapa -->
+        <section class="map-view">
+            <div id="map"></div>
+            
+            <div class="map-floating-controls">
+                <div class="location-status" id="location-status">
+                    <span class="geo-dot"></span> Obtendo localização...
+                </div>
+                <button id="btn-my-location" class="control-btn" title="Minha Localização">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Logout -->
+    <div id="modal-logout" class="modal">
+        <div class="modal-content">
+            <h3>Sair da conta?</h3>
+            <p>Você precisará fazer login novamente para acessar seus dados.</p>
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn-secondary">Cancelar</button>
+                <button id="modal-confirm" class="btn-danger">Sair</button>
             </div>
         </div>
-    </main>
+    </div>
 
     <nav class="mobile-nav">
         <a href="home.html"><i class="fas fa-home"></i><span>Início</span></a>
@@ -55,10 +106,10 @@
         <a href="map.html" class="active"><i class="fas fa-map-marked-alt"></i><span>Mapa</span></a>
     </nav>
 
-    <!-- Leaflet JS -->
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="../js/auth.js"></script>
     <script src="../js/data.js"></script>
-    <script src="../js/map.js"></script>
+    <script type="module" src="../js/map.js"></script>
 </body>
 </html>
