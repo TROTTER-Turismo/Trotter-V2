@@ -1,58 +1,84 @@
-import { PlacesService } from "./places-service.js";
-
-document.addEventListener('DOMContentLoaded', async () => {
-    // Verificar se usuário está logado
-    const currentUser = JSON.parse(localStorage.getItem('trotter_current_user'));
-    if (!currentUser && !window.location.pathname.includes('index.html') && !window.location.pathname.includes('register.html')) {
-        window.location.href = '../index.html';
-        return;
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    const userData = localStorage.getItem('trotter_current_user');
     const userNameEl = document.getElementById('user-name');
-    if (userNameEl && currentUser) {
-        userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
+
+    if (userData && userNameEl) {
+        try {
+            const currentUser = JSON.parse(userData);
+            if (currentUser.name) {
+                userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
+                console.log("✅ Nome exibido:", currentUser.name);
+            }
+        } catch (e) {
+            console.error("❌ Erro ao ler dados do usuário", e);
+        }
+    } else {
+        console.warn("⚠️ Elemento #user-name não encontrado ou usuário deslogado.");
     }
-    const featuredGrid = document.getElementById('featured-places');
-    const exploreGrid = document.getElementById('explore-places');
-    if (featuredGrid || exploreGrid) {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            const { latitude, longitude } = pos.coords;
-            
-            if (featuredGrid) {
-                const places = await PlacesService.fetchNearbyPlaces(latitude, longitude, 5000, 'all');
-                renderPlaces(places.slice(0, 6), featuredGrid);
+
+    const modal = document.getElementById('profile-modal');
+    const userNameBtn = document.getElementById('user-name');
+    const closeModal = document.querySelector('.close-modal');
+    userNameBtn.addEventListener('click', () => {
+        const userAuth = firebase.auth().currentUser;
+        const localUser = JSON.parse(localStorage.getItem('trotter_current_user'));
+
+        if (userAuth || localUser) {
+            document.getElementById('edit-name').value = userAuth?.displayName || localUser?.name || "";
+            document.getElementById('edit-email').value = userAuth?.email || localUser?.email || "";
+
+            modal.style.display = 'block';
+        } else {
+            alert("Faça login para editar seu perfil.");
+        }
+    });
+    closeModal.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
+    document.getElementById('btn-update-name').addEventListener('click', async () => {
+        const newName = document.getElementById('edit-name').value;
+        const user = firebase.auth().currentUser;
+        if (!newName) return alert("Digite um nome válido.");
+        try {
+            await user.updateProfile({ displayName: newName });
+            await firebase.firestore().collection('users').doc(user.uid).update({
+                name: newName
+            });
+            const localData = JSON.parse(localStorage.getItem('trotter_current_user'));
+            localData.name = newName;
+            localStorage.setItem('trotter_current_user', JSON.stringify(localData));
+            userNameBtn.textContent = `Olá, ${newName.split(' ')[0]}`;
+            alert("Nome atualizado com sucesso!");
+            modal.style.display = 'none';
+        } catch (error) {
+            alert("Erro ao atualizar nome: " + error.message);
+        }
+    });
+
+    document.getElementById('btn-update-email').addEventListener('click', async () => {
+        const newEmail = document.getElementById('edit-email').value;
+        const user = firebase.auth().currentUser;
+        try {
+            await user.verifyBeforeUpdateEmail(newEmail);
+            alert(`Enviamos um e-mail de confirmação para ${newEmail}. A alteração só será concluída após a validação.`);
+            modal.style.display = 'none';
+        } catch (error) {
+            if (error.code === 'auth/requires-recent-login') {
+                alert("Por segurança, saia e faça login novamente antes de alterar o e-mail.");
+            } else {
+                alert(error.message);
             }
-            if (exploreGrid) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const catFilter = urlParams.get('cat') || 'all';
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    if (btn.dataset.filter === catFilter) btn.classList.add('active');
-                    else btn.classList.remove('active');
-                });
-                const places = await PlacesService.fetchNearbyPlaces(latitude, longitude, 10000, catFilter);
-                renderPlaces(places, exploreGrid);
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        const filter = btn.getAttribute('data-filter');
-                        exploreGrid.innerHTML = '<div class="loading-state"><div class="spinner-small"></div><p>Buscando lugares...</p></div>';
-                        const result = await PlacesService.fetchNearbyPlaces(latitude, longitude, 10000, filter);
-                        renderPlaces(result, exploreGrid);
-                    });
-                });
-            }
-        }, async () => {
-            const lat = -23.5505, lon = -46.6333;
-            if (featuredGrid) {
-                const places = await PlacesService.fetchNearbyPlaces(lat, lon, 5000, 'all');
-                renderPlaces(places.slice(0, 6), featuredGrid);
-            }
-            if (exploreGrid) {
-                const places = await PlacesService.fetchNearbyPlaces(lat, lon, 10000, 'all');
-                renderPlaces(places, exploreGrid);
-            }
-        });
-    }
+        }
+    });
+    document.getElementById('btn-update-password').addEventListener('click', async () => {
+        const user = firebase.auth().currentUser;
+        try {
+            await firebase.auth().sendPasswordResetEmail(user.email);
+            alert("Link de redefinição de senha enviado para seu e-mail!");
+            modal.style.display = 'none';
+        } catch (error) {
+            alert(error.message);
+        }
+    });
 });
 
 function renderPlaces(places, container) {

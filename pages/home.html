@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="icon" href="../img/logo-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <header class="main-header">
         <div class="container header-content">
@@ -20,7 +22,7 @@
             </nav>
             <div class="user-menu">
                 <span id="user-name"></span>
-                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt">Sair da Conta</i></button>
+                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </div>
     </header>
@@ -30,7 +32,7 @@
             <div class="container">
                 <h1>O que você quer fazer <br><span>hoje?</span></h1>
                 <p>Descubra os melhores lugares ao seu redor com base na sua localização.</p>
-                
+
                 <div class="category-grid">
                     <a href="explore.html?cat=comer" class="category-card">
                         <div class="icon-box"><i class="fas fa-utensils"></i></div>
@@ -66,9 +68,39 @@
         <a href="home.html"><i class="fas fa-home"></i><span>Mapa</span></a>
     </nav>
 
-
-    <script type="module" src="../js/main.js"></script>
     <script type="module" src="../js/auth.js"></script>
+    <script type="module" src="../js/main.js"></script>
     <script src="../js/data.js"></script>
+
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Minha Conta</h2>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 20px;">Gerencie suas informações do Trotter</p>
+
+            <div class="input-group">
+                <label>Nome:</label>
+                <input type="text" id="edit-name" placeholder="Seu nome">
+                <button id="btn-update-name" class="btn-primary">Atualizar Nome</button>
+            </div>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+            <div class="input-group">
+                <label>E-mail:</label>
+                <input type="email" id="edit-email" placeholder="Novo e-mail">
+                <button id="btn-update-email" class="btn-secondary">Alterar E-mail</button>
+                <small style="color: #999; display: block; margin-top: 5px;">Enviaremos uma confirmação para o novo
+                    e-mail.</small>
+            </div>
+
+            <div class="input-group">
+                <label>Segurança:</label>
+                <button id="btn-update-password" class="btn-secondary">Redefinir Senha por E-mail</button>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>
