@@ -23,7 +23,7 @@
             </nav>
             <div class="user-menu">
                 <span id="user-name"></span>
-                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt">Sair da Conta</i></button>
             </div>
         </div>
     </header>
@@ -52,13 +52,6 @@
     <script type="module" src="../js/main.js"></script>
     <script type="module" src="../js/auth.js"></script>
     <script src="../js/data.js"></script>
-
-    <script>
-        const userNameEl = document.getElementById('user-name');
-        if (userNameEl && currentUser) {
-            userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
-        }
-    </script>
 </body>
 
 </html>
