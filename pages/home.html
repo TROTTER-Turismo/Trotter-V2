@@ -16,7 +16,7 @@
             <nav class="desktop-nav">
                 <a href="home.html" class="active">Início</a>
                 <a href="explore.html">Explorar</a>
-                <a href="map.html">Mapa</a>
+                <a href="home.html">Mapa</a>
             </nav>
             <div class="user-menu">
                 <span id="user-name"></span>
@@ -66,8 +66,16 @@
         <a href="home.html"><i class="fas fa-home"></i><span>Mapa</span></a>
     </nav>
 
+
+    <script type="module" src="../js/main.js"></script>
     <script type="module" src="../js/auth.js"></script>
     <script src="../js/data.js"></script>
-    <script type="module" src="../js/main.js"></script>
+    
+    <script>
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl && currentUser) {
+            userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
+        }
+    </script>
 </body>
 </html>
