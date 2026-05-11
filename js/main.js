@@ -7,17 +7,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '../index.html';
         return;
     }
-
-    // Atualizar nome do usuário
     const userNameEl = document.getElementById('user-name');
     if (userNameEl && currentUser) {
         userNameEl.textContent = `Olá, ${currentUser.name.split(' ')[0]}`;
     }
-
-    // Lógica para carregar lugares reais na Home ou Explore
     const featuredGrid = document.getElementById('featured-places');
     const exploreGrid = document.getElementById('explore-places');
-
     if (featuredGrid || exploreGrid) {
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const { latitude, longitude } = pos.coords;
@@ -26,21 +21,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const places = await PlacesService.fetchNearbyPlaces(latitude, longitude, 5000, 'all');
                 renderPlaces(places.slice(0, 6), featuredGrid);
             }
-
             if (exploreGrid) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const catFilter = urlParams.get('cat') || 'all';
-                
-                // Ativar botão de filtro
                 document.querySelectorAll('.filter-btn').forEach(btn => {
                     if (btn.dataset.filter === catFilter) btn.classList.add('active');
                     else btn.classList.remove('active');
                 });
-
                 const places = await PlacesService.fetchNearbyPlaces(latitude, longitude, 10000, catFilter);
                 renderPlaces(places, exploreGrid);
-
-                // Eventos de filtro na página Explore
                 document.querySelectorAll('.filter-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -53,7 +42,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
         }, async () => {
-            // Fallback se geolocalização falhar
             const lat = -23.5505, lon = -46.6333;
             if (featuredGrid) {
                 const places = await PlacesService.fetchNearbyPlaces(lat, lon, 5000, 'all');
@@ -73,7 +61,6 @@ function renderPlaces(places, container) {
         container.innerHTML = '<p class="text-center">Nenhum lugar encontrado nesta região.</p>';
         return;
     }
-    
     places.forEach(place => {
         const card = document.createElement('div');
         card.className = 'place-card';
